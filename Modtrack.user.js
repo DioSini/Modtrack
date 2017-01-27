@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Modtrack
 // @namespace    Chr0nX/Dubtrack
-// @version      0.1
+// @version      0.1.1
 // @description  Mod Helper for NB3's Dubtrack room
 // @author       Chr0nX
 // @match        https://www.dubtrack.fm/join/nightblue3
@@ -21,7 +21,8 @@
                 on_stream: ':exclamation:RULES for songs (on stream): No NSFW, No ear rape, No Hardstyle, No Nightcore/Nightstep, No AMV:exclamation:'
             },
             language: 'Please keep the chat in English :) ',
-            no_spam: 'Please don\'t spam the chat! :P '
+            no_spam: 'Please don\'t spam the chat! :P ',
+            props_explained: 'Props can be given to the current DJ via the `!props` command (one per song). They are credited at the end of the song. You can join the occasional roulette and brag with them. :D'
         };
 
         var fn = (function (parent) {
@@ -65,6 +66,11 @@
                 handler: fn.chatMessage,
                 arguments: [messages.no_spam, false]
             },
+            props_explained: {
+                name: 'Props explained',
+                handler: fn.chatMessage,
+                arguments: [messages.props_explained, true]
+            },
             props: {
                 name: '!props',
                 handler: fn.chatMessage,
@@ -82,7 +88,7 @@
             var self = {};
 
             self.init = function () {
-                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/master/modtrack.css" />');
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.1/modtrack.css" />');
                 var container = $('<div class="modtrack-container"><h2>Modtrack</h2></div>');
                 for (var index in commands) {
                     var command = commands[index];
