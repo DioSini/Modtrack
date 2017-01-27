@@ -63,7 +63,7 @@
             spam: {
                 name: 'Don\'t Spam',
                 handler: fn.chatMessage,
-                arguments: [messages.language, false]
+                arguments: [messages.no_spam, false]
             },
             props: {
                 name: '!props',
