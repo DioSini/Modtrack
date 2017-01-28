@@ -17,12 +17,24 @@
     border-bottom: 1px solid #878c8e;
 }
 
+.modtrack-container h3 {
+    margin: none;
+    padding: 0 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
 .modtrack-container button {
     display: block;
     width: 100%;
     padding: 0.5rem 0;
+    font-size: 0.9rem;
     border: none;
     background: none;
+}
+
+.modtrack-container button:hover {
+    cursor: pointer;
 }
 
 .modtrack-container button:active {
