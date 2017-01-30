@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Modtrack
 // @namespace    Chr0nX/Dubtrack
-// @version      0.2
+// @version      0.2.1
 // @description  Mod Helper for NB3's Dubtrack room
 // @author       Chr0nX
 // @match        https://www.dubtrack.fm/join/nightblue3
@@ -142,17 +142,20 @@
             var self = {};
 
             self.init = function () {
-                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.2/modtrack.css" />');
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.2.1/modtrack.css" />');
                 var container = $('<div class="modtrack-container"><h2>Modtrack</h2></div>');
+                var commandContainer = $('<div class="command-container"></div>');
                 for (var groupIndex in commands) {
                     var commandGroup = commands[groupIndex];
-                    container.append('<h3>' + groupIndex + '</h3>');
+                    commandContainer.append('<h3>' + groupIndex + '</h3>');
                     for (var commandIndex in commandGroup) {
                         var command = commandGroup[commandIndex];
-                        container.append('<button type="button" onclick="Modtrack.executeCommand(\'' + groupIndex + '\', \'' + commandIndex + '\')">' + command.name + '</button>');
+                        commandContainer.append('<button type="button" onclick="Modtrack.executeCommand(\'' + groupIndex + '\', \'' + commandIndex + '\')">' + command.name + '</button>');
                     }
                 }
+                commandContainer.appendTo(container);
                 container.appendTo('#main-room .right_section');
+                commandContainer.perfectScrollbar();
             };
 
             return self;
