@@ -142,7 +142,7 @@
             var self = {};
 
             self.init = function () {
-                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.2.1/modtrack.css" />');
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.2.1-fixed/modtrack.css" />');
                 var container = $('<div class="modtrack-container"><h2>Modtrack</h2></div>');
                 var commandContainer = $('<div class="command-container"></div>');
                 for (var groupIndex in commands) {

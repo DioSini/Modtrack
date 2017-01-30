@@ -24,6 +24,7 @@
     width: inherit;
     height: calc(100% - 2.9rem);
     padding: 1rem 0;
+    overflow: hidden;
 }
 
 .command-container h3 {
