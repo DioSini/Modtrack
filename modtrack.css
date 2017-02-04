@@ -19,7 +19,7 @@
     border-bottom: 1px solid #878c8e;
 }
 
-.modtrack-container .command-container {
+.modtrack-container .menu-container {
     position: relative;
     width: inherit;
     height: calc(100% - 2.9rem);
@@ -27,14 +27,15 @@
     overflow: hidden;
 }
 
-.command-container h3 {
-    margin: none !important;
+.menu-container h3 {
+    margin: 0;
+    margin-bottom: .5rem;
     padding: 0 1rem;
     font-size: 1rem;
     font-weight: 700;
 }
 
-.command-container button {
+.menu-container button {
     display: block;
     width: 100%;
     padding: 0.5rem 0;
@@ -43,11 +44,11 @@
     background: none;
 }
 
-.command-container button:hover {
+.menu-container button:hover {
     cursor: pointer;
 }
 
-.command-container button:active {
+.menu-container button:active {
     border: none;
 }
 

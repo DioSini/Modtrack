@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Modtrack
+// @name         [Dubtrack] Modtrack
 // @namespace    Chr0nX/Dubtrack
-// @version      0.2.1
+// @version      0.3
 // @description  Mod Helper for NB3's Dubtrack room
 // @author       Chr0nX
 // @match        https://www.dubtrack.fm/join/nightblue3
@@ -14,158 +14,268 @@
     window.Modtrack = (function (Dubtrack) {
         var self = {};
 
-        var messages = {
-            stream_starting: '*Stream is starting* :nb3hype: Queue songs at your own risk of getting skipped. ~Nightcore/Nightstep and AMVs will be removed from the queue!~',
-            stream_ending: '@djs The *stream is ending* now, please stick to ~off stream rules for songs~. The queue will be purged in a few minutes. :bingbad:',
-            song_rules: {
-                off_stream: '> *RULES for songs (off stream)*: ~EDM | Trap | Chill~, No NSFW, No ear rape, No Hardstyle, ~No Nightcore/Nightstep~, ~No AMVs~, No troll songs, ~Main language English~, ~No same songs within 4 hours~',
-                on_stream: '> *RULES for songs (on stream)*: No NSFW, No ear rape, No Hardstyle, ~No Nightcore/Nightstep~, ~No AMVs~'
+        var settings = {
+            downdub_notifications: true,
+            downdub_thresholds : {
+                501: 20, 251: 15, 101: 10, 0: 5
             },
-            read_rules: 'Read the rules please! Full list of rules: https://github.com/nightbloo/nightbloo.github.io/wiki/Nightblue3-Community:-Rules ',
-            language: 'Please keep the chat in English. You can PM if you wanna speak another language. :) ',
-            no_spam: 'Please don\'t spam the chat! :P ',
-            skips_explained: '> We don\'t ask for *skips* in this room. Songs get skipped at a certain ~downvote threshold~ (off stream). Just mute if you don\'t wanna listen to it.',
-            props_explained: '> *Props* can be given to the current DJ via the `!props` command (one per song). You can join the occasional roulette and brag with them. :D',
-            dubs_explained: '>  You get *Dubs* by playing songs and voting on songs. At 10.000 Dubs you\'ll become Resident DJ in this room. Other than that they show how long/often someone has been here.',
-            dubx: '> *DubX* adds some useful features like ~emotes~ and an ~ETA timer~ among others to Dubtrack. You can get it at https://dubx.net/ Installation tutorial: https://github.com/nightbloo/nightbloo.github.io/wiki/DubX%3A-Installing-DubX',
-            queue_locked: '> *The queue is locked now*, so ~only Resident DJs and above~ can play songs. It\'s probably locked because Rabia wasn\'t happy with the music quality.',
-            sub_sunday: 'It\'s *Sub Sunday* :nb3hype: Queue will be locked as long as Rabia streams.'
+            messages: {
+                stream_starting: '@djs *Stream is starting* :nb3hype: Queue songs at your own risk of getting skipped/removed. ~Nightcore/Nightstep, AMVs and songs that are too chill will be removed from the queue!~',
+                stream_ending: '@djs The *stream is ending* now, please stick to ~off stream rules for songs~. The queue will be purged in a few minutes. :bingbad:',
+                song_rules: {
+                    off_stream: '> *RULES for songs (off stream)*: ~EDM | Trap | Chill~, No NSFW, No ear rape, No Hardstyle, ~No Nightcore/Nightstep~, ~No AMVs~, No troll songs, ~Main language English~, ~No same songs within 4 hours~',
+                    on_stream: '> *RULES for songs (on stream)*: No NSFW, No ear rape, No Hardstyle, ~No Nightcore/Nightstep~, ~No AMVs~'
+                },
+                queue_locked: '> *The queue is locked now*, so ~only Resident DJs and above~ can play songs. It\'s probably locked because Rabia wasn\'t happy with the music.',
+                sub_sunday: 'It\'s *Sub Sunday* :nb3hype: Queue will be locked as long as Rabia streams.',
+                read_rules: 'Read the rules please! Full list of rules: https://github.com/nightbloo/nightbloo.github.io/wiki/Nightblue3-Community:-Rules ',
+                language: 'Please keep the chat in English. You can PM users if you wanna speak another language. :) ',
+                no_spam: 'Please don\'t spam the chat! :P ',
+                skips_explained: '> We don\'t ask for *skips* in this room. Songs get skipped at a certain ~downvote threshold~ (off stream). Just mute if you don\'t wanna listen to it.',
+                props_explained: '> *Props* can be given to the current DJ via the `!props` command (one per song). You can join the occasional roulette and brag with them. :D',
+                dubs_explained: '>  You get *Dubs* by playing songs and voting on songs. At 10.000 Dubs you\'ll become Resident DJ in this room. Other than that they show how long/often someone has been here.',
+                dubx: '> *DubX* adds some useful features like ~emotes~ and an ~ETA timer~ among others to Dubtrack. Get it at https://dubx.net/ Tutorial: https://git.io/vzCVn',
+                gde: '> *gde* adds ~emotes~ to Dubtrack (even more than DubX does). Get it at https://gde.netux.ml/',
+                roulette_open: '@djs Roulette is open now :nb3hype: Type `!join` for a chance of a random spot in the queue!'
+            }
         };
 
-        var fn = (function (parent) {
-            var self = {};
-
-            self.chatMessage = function (message, send) {
-                var element = $('#chat-txt-message');
-                element.val(element.val() + message);
-                if (send === true) {
-                    $('.pusher-chat-widget-send-btn').click();
-                }
-                element.focus();
-            };
-
-            return self;
-        })(self);
-
-        var commands = {
-            Stream: {
-                stream_starting: {
-                    name: 'Stream starting',
-                    handler: fn.chatMessage,
-                    arguments: [messages.stream_starting, true]
-                },
-                stream_ending: {
-                    name: 'Stream ending',
-                    handler: fn.chatMessage,
-                    arguments: [messages.stream_ending, true]
-                },
-                song_rules_off_stream: {
-                    name: 'Song Rules off stream',
-                    handler: fn.chatMessage,
-                    arguments: [messages.song_rules.off_stream, true]
-                },
-                song_rules_on_stream: {
-                    name: 'Song Rules on stream',
-                    handler: fn.chatMessage,
-                    arguments: [messages.song_rules.on_stream, true]
-                },
-                queue_locked: {
-                    name: 'Queue locked?',
-                    handler: fn.chatMessage,
-                    arguments: [messages.queue_locked, true]
-                },
-                sub_sunday: {
-                    name: 'Sub Sunday',
-                    handler: fn.chatMessage,
-                    arguments: [messages.sub_sunday, true]
+        var menuElements = {
+            stream: {
+                label: 'Stream',
+                elements: {
+                    stream_starting: {
+                        type: 'command',
+                        label: 'Stream starting',
+                        handler: chatMessage,
+                        arguments: [settings.messages.stream_starting, true, true]
+                    },
+                    stream_ending: {
+                        type: 'command',
+                        label: 'Stream ending',
+                        handler: chatMessage,
+                        arguments: [settings.messages.stream_ending, true, true]
+                    },
+                    song_rules_off_stream: {
+                        type: 'command',
+                        label: 'Song Rules off stream',
+                        handler: chatMessage,
+                        arguments: [settings.messages.song_rules.off_stream, true]
+                    },
+                    song_rules_on_stream: {
+                        type: 'command',
+                        label: 'Song Rules on stream',
+                        handler: chatMessage,
+                        arguments: [settings.messages.song_rules.on_stream, true]
+                    },
+                    queue_locked: {
+                        type: 'command',
+                        label: 'Queue locked',
+                        handler: chatMessage,
+                        arguments: [settings.messages.queue_locked, true]
+                    },
+                    sub_sunday: {
+                        type: 'command',
+                        label: 'Sub Sunday',
+                        handler: chatMessage,
+                        arguments: [settings.messages.sub_sunday, true]
+                    }
                 }
             },
-            Warnings: {
-                read_rules: {
-                    name: 'Read Rules!',
-                    handler: fn.chatMessage,
-                    arguments: [messages.read_rules, false]
-                },
-                language: {
-                    name: 'English Only',
-                    handler: fn.chatMessage,
-                    arguments: [messages.language, false]
-                },
-                spam: {
-                    name: 'Don\'t Spam',
-                    handler: fn.chatMessage,
-                    arguments: [messages.no_spam, false]
+            warnings: {
+                label: 'Warnings',
+                elements: {
+                    read_rules: {
+                        type: 'command',
+                        label: 'Read Rules!',
+                        handler: chatMessage,
+                        arguments: [settings.messages.read_rules, false]
+                    },
+                    language: {
+                        type: 'command',
+                        label: 'English Only',
+                        handler: chatMessage,
+                        arguments: [settings.messages.language, false]
+                    },
+                    spam: {
+                        type: 'command',
+                        label: 'Don\'t Spam',
+                        handler: chatMessage,
+                        arguments: [settings.messages.no_spam, false]
+                    }
                 }
             },
-            Explanations: {
-                skips_explained: {
-                    name: 'Skips explained',
-                    handler: fn.chatMessage,
-                    arguments: [messages.skips_explained, true]
-                },
-                props_explained: {
-                    name: 'Props explained',
-                    handler: fn.chatMessage,
-                    arguments: [messages.props_explained, true]
-                },
-                dubs_explained: {
-                    name: 'Dubs explained',
-                    handler: fn.chatMessage,
-                    arguments: [messages.dubs_explained, true]
-                },
-                dubx: {
-                    name: 'DubX',
-                    handler: fn.chatMessage,
-                    arguments: [messages.dubx, true]
+            explanations: {
+                label: 'Explanations',
+                elements: {
+                    skips_explained: {
+                        type: 'command',
+                        label: 'Skips explained',
+                        handler: chatMessage,
+                        arguments: [settings.messages.skips_explained, true]
+                    },
+                    props_explained: {
+                        type: 'command',
+                        label: 'Props explained',
+                        handler: chatMessage,
+                        arguments: [settings.messages.props_explained, true]
+                    },
+                    dubs_explained: {
+                        type: 'command',
+                        label: 'Dubs explained',
+                        handler: chatMessage,
+                        arguments: [settings.messages.dubs_explained, true]
+                    },
+                    dubx: {
+                        type: 'command',
+                        label: 'DubX',
+                        handler: chatMessage,
+                        arguments: [settings.messages.dubx, true]
+                    },
+                    gde: {
+                        type: 'command',
+                        label: 'gde',
+                        handler: chatMessage,
+                        arguments: [settings.messages.gde, true]
+                    }
                 }
             },
-            Commands: {
-                props: {
-                    name: '!props',
-                    handler: fn.chatMessage,
-                    arguments: ['!props', true]
-                },
-                history: {
-                    name: '!history',
-                    handler: fn.chatMessage,
-                    arguments: ['!history', true]
+            commands: {
+                label: 'Commands',
+                elements: {
+                    props: {
+                        type: 'command',
+                        label: '!props',
+                        handler: chatMessage,
+                        arguments: ['!props', true, true]
+                    },
+                    history: {
+                        type: 'command',
+                        label: '!history (with ID)',
+                        handler: safeHistoryCheck,
+                        arguments: null
+                    },
+                    roulette_open: {
+                        type: 'command',
+                        label: 'Roulette open',
+                        handler: chatMessage,
+                        arguments: [settings.messages.roulette_open, true, true]
+                    }
+                }
+            },
+            settings: {
+                label: 'Settings',
+                elements: {
+                    downdub_notifications: {
+                        type: 'setting',
+                        label: 'Downdub Notifications',
+                        var: settings.downdub_notifications
+                    }
                 }
             }
         };
 
-        self.executeCommand = function (groupIndex, commandIndex) {
-            var command = commands[groupIndex][commandIndex];
+        function chatMessage (message, send, clear) {
+            var element = $('#chat-txt-message');
+            element.val((clear === true ? '' : element.val()) + message);
+            if (send === true) {
+                $('.pusher-chat-widget-send-btn').click();
+            }
+            element.focus();
+        }
+
+        function safeHistoryCheck () {
+            var songInfo = Dubtrack.room.player.activeSong.get('songInfo');
+            chatMessage('!history ' + songInfo.fkid + ' *(this song)*', true, true);
+        }
+
+        self.executeCommand = function (groupIndex, elementIndex) {
+            var command = menuElements[groupIndex].elements[elementIndex];
             command.handler.apply(self, command.arguments);
         };
 
         var UI = (function (parent) {
             var self = {};
 
-            self.init = function () {
-                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.2.1-fixed/modtrack.css" />');
+            function buildUI () {
                 var container = $('<div class="modtrack-container"><h2>Modtrack</h2></div>');
-                var commandContainer = $('<div class="command-container"></div>');
-                for (var groupIndex in commands) {
-                    var commandGroup = commands[groupIndex];
-                    commandContainer.append('<h3>' + groupIndex + '</h3>');
-                    for (var commandIndex in commandGroup) {
-                        var command = commandGroup[commandIndex];
-                        commandContainer.append('<button type="button" onclick="Modtrack.executeCommand(\'' + groupIndex + '\', \'' + commandIndex + '\')">' + command.name + '</button>');
+                var menuContainer = $('<div class="menu-container"></div>').appendTo(container);
+                for (var groupIndex in menuElements) {
+                    var elementGroup = menuElements[groupIndex];
+                    menuContainer.append('<h3>' + elementGroup.label + '</h3>');
+                    for (var elementIndex in elementGroup.elements) {
+                        var element = elementGroup.elements[elementIndex];
+                        if (element.type == 'command') {
+                            menuContainer.append('<button type="button" onclick="Modtrack.executeCommand(\'' + groupIndex + '\', \'' + elementIndex + '\')">' + element.label + '</button>');
+                        } else if (element.type == 'setting') {
+                            menuContainer.append('<button type="button" onclick="" disabled><i class="fi-' + (element.var === true ? 'check' : 'x') + '"></i> ' + element.label + '</button>');
+                        }
                     }
                 }
-                commandContainer.appendTo(container);
-                container.appendTo('#main-room .right_section');
-                commandContainer.perfectScrollbar();
+                menuContainer.perfectScrollbar();
+                return container;
+            }
+
+            self.init = function () {
+                console.log('init ui');
+                $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.3/modtrack.css" />');
+                buildUI().appendTo('#main-room .right_section');
+            };
+
+            self.showSystemMessage = function (message) {
+                $('.chat-main').append('<li class="system"><span>' + message + '</span></li>');
             };
 
             return self;
         })(self);
 
-        function init() {
-            UI.init();
-        }
+        var util = (function (parent) {
+            var self = {};
 
-        $(document).ready(init);
+            self.listenToDowndubs = function () {
+                var thresholds = {
+                    users: [],
+                    downdubs: []
+                };
+                var lastNotified = null;
+
+                for (var index in settings.downdub_thresholds) {
+                    thresholds.users.push(parseInt(index));
+                    thresholds.downdubs.push(settings.downdub_thresholds[index]);
+                }
+                if (thresholds.users[0] < thresholds.users[thresholds.users.length - 1]) {
+                    thresholds.users.reverse();
+                    thresholds.downdubs.reverse();
+                }
+
+                Dubtrack.Events.bind('realtime:room_playlist-dub', function (event) {
+                    if (event.dubtype == 'downdub') {
+                        var userCount = Dubtrack.room.users.rt_users.length;
+                        for (var i = 0; i < thresholds.users.length; i++) {
+                            if (userCount >= thresholds.users[i]) {
+                                var downdubs = Dubtrack.room.player.activeSong.get('song').downdubs + 1; // add the downvote causing the event
+                                var songId = Dubtrack.room.player.activeSong.get('song').songid;
+                                if (downdubs >= thresholds.downdubs[i] && lastNotified != songId) {
+                                    UI.showSystemMessage('Song has reached the downdub threshold!');
+                                    Dubtrack.room.chat.mentionChatSound.play();
+                                    lastNotified = songId;
+                                }
+                                return;
+                            }
+                        }
+                    }
+                });
+            };
+
+            return self;
+        })(self);
+
+        (function init () {
+            $(document).ready(UI.init);
+            if (settings.downdub_notifications === true) {
+                util.listenToDowndubs();
+            }
+        })();
 
         return self;
     })(Dubtrack);
