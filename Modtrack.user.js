@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [Dubtrack] Modtrack
 // @namespace    Chr0nX/Dubtrack
-// @version      0.3
+// @version      0.3.1
 // @description  Mod Helper for NB3's Dubtrack room
 // @author       Chr0nX
 // @match        https://www.dubtrack.fm/join/nightblue3
@@ -28,14 +28,14 @@
                 },
                 queue_locked: '> *The queue is locked now*, so ~only Resident DJs and above~ can play songs. It\'s probably locked because Rabia wasn\'t happy with the music.',
                 sub_sunday: 'It\'s *Sub Sunday* :nb3hype: Queue will be locked as long as Rabia streams.',
-                read_rules: 'Read the rules please! Full list of rules: https://github.com/nightbloo/nightbloo.github.io/wiki/Nightblue3-Community:-Rules ',
+                read_rules: 'Full list of rules: https://git.io/vWJnY ',
                 language: 'Please keep the chat in English. You can PM users if you wanna speak another language. :) ',
                 no_spam: 'Please don\'t spam the chat! :P ',
                 skips_explained: '> We don\'t ask for *skips* in this room. Songs get skipped at a certain ~downvote threshold~ (off stream). Just mute if you don\'t wanna listen to it.',
                 props_explained: '> *Props* can be given to the current DJ via the `!props` command (one per song). You can join the occasional roulette and brag with them. :D',
-                dubs_explained: '>  You get *Dubs* by playing songs and voting on songs. At 10.000 Dubs you\'ll become Resident DJ in this room. Other than that they show how long/often someone has been here.',
-                dubx: '> *DubX* adds some useful features like ~emotes~ and an ~ETA timer~ among others to Dubtrack. Get it at https://dubx.net/ Tutorial: https://git.io/vzCVn',
-                gde: '> *gde* adds ~emotes~ to Dubtrack (even more than DubX does). Get it at https://gde.netux.ml/',
+                dubs_explained: '>  You get *Dubs* by playing songs and voting on songs. At 10.000 Dubs you\'ll become Resident DJ in this room.',
+                dubplus: '> *Dub+* adds some useful features to Dubtrack. Get it at http://dub.plus Tutorial: https://git.io/vyd7r',
+                gde: '> *gde* adds ~emotes~ to Dubtrack (even more than Dub+ does). Get it at https://gde.netux.ml/ Tutorial: https://git.io/vyd4p',
                 roulette_open: '@djs Roulette is open now :nb3hype: Type `!join` for a chance of a random spot in the queue!'
             }
         };
@@ -126,11 +126,11 @@
                         handler: chatMessage,
                         arguments: [settings.messages.dubs_explained, true]
                     },
-                    dubx: {
+                    dubplus: {
                         type: 'command',
-                        label: 'DubX',
+                        label: 'Dub+',
                         handler: chatMessage,
-                        arguments: [settings.messages.dubx, true]
+                        arguments: [settings.messages.dubplus, true]
                     },
                     gde: {
                         type: 'command',
@@ -217,7 +217,6 @@
             }
 
             self.init = function () {
-                console.log('init ui');
                 $('head').append('<link rel="stylesheet" type="text/css" href="https://cdn.rawgit.com/Chr0nX/Modtrack/v0.3-fixed/modtrack.css" />');
                 buildUI().appendTo('#main-room .right_section');
             };
